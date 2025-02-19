@@ -95,7 +95,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:background="@drawable/rounded_4dp_grey_border_1dp"
-            android:paddingVertical="12dp" />
+            android:minHeight="52dp" />
 
     </LinearLayout>
 
@@ -121,12 +121,14 @@
             android:orientation="horizontal">
 
             <CheckBox
+                android:id="@+id/optSubjectAccounts"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/accounts" />
 
             <CheckBox
+                android:id="@+id/optSubjectMath"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -140,12 +142,14 @@
             android:orientation="horizontal">
 
             <CheckBox
+                android:id="@+id/optSubjectComputer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/computer" />
 
             <CheckBox
+                android:id="@+id/optSubjectEconomics"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -180,8 +184,8 @@
 
     </FrameLayout>
 
-
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/addBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
@@ -189,7 +193,8 @@
         android:text="@string/add"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
+        android:drawableLeft="@drawable/add"
+        android:drawableTint="@color/white"
         app:layout_constraintTop_toBottomOf="@+id/dividerWrapper" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
