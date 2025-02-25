@@ -4,12 +4,16 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 import android.widget.RadioGroup;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.collection.ArraySet;
 import androidx.core.graphics.Insets;
@@ -80,21 +84,33 @@ public class AddStudentActivity extends AppCompatActivity
                 AddStudentActivity.this,
                 android.R.layout.simple_spinner_dropdown_item,
                 grades
-        );
+        ) {
+            @Override
+            public View getDropDownView(
+                    int position,
+                    @Nullable View convertView,
+                    @NonNull ViewGroup parent
+            ) {
+                CheckedTextView dropDownView = (CheckedTextView) super.getDropDownView(position, convertView, parent);
+                if (binding.gradeSpinner.getSelectedItemPosition() == position)
+                    dropDownView.setTextColor(getColor(R.color.green));
+                return dropDownView;
+            }
+        };
         binding.gradeSpinner.setAdapter(gradeAdapter);
     }
 
-    private void showMessage(String message){
+    private void showMessage(String message) {
         new AlertDialog.Builder(AddStudentActivity.this)
                 .setTitle(getString(R.string.message))
                 .setMessage(message)
                 .show();
     }
 
-    private boolean validateUserName(){
+    private boolean validateUserName() {
         boolean isValid = true;
 
-        if(binding.studentName.toString().isEmpty()){
+        if (binding.studentName.toString().isEmpty()) {
             isValid = false;
             showMessage(getString(R.string.student_name_required));
         }
@@ -102,16 +118,60 @@ public class AddStudentActivity extends AppCompatActivity
         return isValid;
     }
 
-    private boolean validate(){
-        if(!validateUserName()){
-            return false;
+    private boolean validateGender() {
+        boolean isValid = true;
+
+        if (selectedGender == null) {
+            isValid = false;
+            showMessage(
+                    getString(R.string.gender_is_required)
+            );
         }
-        return true;
+
+        return isValid;
+    }
+
+    private boolean validateGrade() {
+        boolean isValid = true;
+
+        if (selectedGrade == null) {
+            isValid = false;
+            showMessage(
+                    getString(R.string.grade_is_required)
+            );
+        }
+
+        return isValid;
+    }
+
+    private boolean validateOptionalSubjects() {
+        boolean isValid = true;
+
+        if (selectedOptionalSubjects.isEmpty()) {
+            isValid = false;
+            showMessage(
+                    getString(R.string.select_optional_subjects)
+            );
+        } else if (selectedOptionalSubjects.size() != 2) {
+            isValid = false;
+            showMessage(
+                    getString(R.string.two_optional_subject_not_selected)
+            );
+        }
+
+        return isValid;
+    }
+
+    private boolean validate() {
+        return validateUserName() &&
+                validateGender() &&
+                validateGrade() &&
+                validateOptionalSubjects();
     }
 
     @Override
     public void onClick(View view) {
-        if(validate()){
+        if (validate()) {
 
         }
     }
@@ -158,7 +218,7 @@ public class AddStudentActivity extends AppCompatActivity
             } else {
                 selectedOptionalSubjects.remove(OptionalSubject.ECONOMICS);
             }
-        }else if(compoundButton.getId() == binding.isEnrolled.getId()){
+        } else if (compoundButton.getId() == binding.isEnrolled.getId()) {
             isEnrolled = isChecked;
         }
         Log.i(TAG, "onCheckedChanged: " + selectedOptionalSubjects);
@@ -171,6 +231,5 @@ public class AddStudentActivity extends AppCompatActivity
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
-
-    }
+    } //Show toast message
 }

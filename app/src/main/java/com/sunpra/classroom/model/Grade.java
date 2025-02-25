@@ -19,7 +19,8 @@ public enum Grade {
 
     int displayName;
 
-    Grade(int displayName){
+    Grade(int displayName) {
         this.displayName = displayName;
     }
+
 }
