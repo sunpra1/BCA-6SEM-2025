@@ -20,11 +20,16 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.sunpra.classroom.data.AppDatabase;
 import com.sunpra.classroom.databinding.ActivityAddStudentBinding;
 import com.sunpra.classroom.model.Grade;
 import com.sunpra.classroom.model.OptionalSubject;
+import com.sunpra.classroom.model.Student;
+import com.sunpra.classroom.model.StudentDao;
 
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class AddStudentActivity extends AppCompatActivity
         implements View.OnClickListener,
@@ -172,8 +177,34 @@ public class AddStudentActivity extends AppCompatActivity
     @Override
     public void onClick(View view) {
         if (validate()) {
-
+            addStudent();
         }
+    }
+
+    private void addStudent() {
+        String name = binding.studentName.getText().toString();
+        Gender gender = this.selectedGender;
+        Grade grade = this.selectedGrade;
+        boolean isEnrolled = this.isEnrolled;
+
+        Student student = new Student(
+                0,
+                name,
+                gender,
+                grade,
+                isEnrolled
+        );
+
+        AppDatabase appDatabase = AppDatabase.getInstance(AddStudentActivity.this);
+
+        StudentDao studentDao = appDatabase.studentDao();
+
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                studentDao.insertStudent(student);
+            }
+        });
     }
 
     // For gender group

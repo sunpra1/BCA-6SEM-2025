@@ -87,4 +87,7 @@
     <string name="grade_is_required">Grade is required.</string>
     <string name="select_optional_subjects">Please select 2 optional subjects.</string>
     <string name="two_optional_subject_not_selected">Two optional subjects not selected.</string>
+    <string name="gender_label">"Gender: "</string>
+    <string name="grade_label">"Grade: "</string>
+    <string name="is_enrolled_label">Is Enrolled</string>
 </resources>
