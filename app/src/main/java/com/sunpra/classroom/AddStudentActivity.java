@@ -1,6 +1,7 @@
 package com.sunpra.classroom;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -203,8 +204,17 @@ public class AddStudentActivity extends AppCompatActivity
             @Override
             public void run() {
                 studentDao.insertStudent(student);
+                // TODO save optional subjects as well.
+                // TASK please try to add optional subjects of student here.
+
+                navigateToStudentListScreen();
             }
         });
+    }
+
+    private void navigateToStudentListScreen(){
+        Intent intent = new Intent(AddStudentActivity.this, StudentListActivity.class);
+        startActivity(intent);
     }
 
     // For gender group

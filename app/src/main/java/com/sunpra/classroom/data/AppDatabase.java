@@ -8,10 +8,13 @@ import androidx.room.RoomDatabase;
 
 import com.sunpra.classroom.model.Student;
 import com.sunpra.classroom.model.StudentDao;
+import com.sunpra.classroom.model.Subject;
+import com.sunpra.classroom.model.SubjectDao;
 
 @Database(
         entities = {
-                Student.class
+                Student.class,
+                Subject.class
         },
         version = 1,
         exportSchema = false
@@ -19,7 +22,7 @@ import com.sunpra.classroom.model.StudentDao;
 public abstract class AppDatabase extends RoomDatabase {
     private volatile static AppDatabase instance;
 
-    public static AppDatabase getInstance(Context context){
+    public static AppDatabase getInstance(Context context) {
         synchronized (AppDatabase.class) {
             if (instance != null) return instance;
             instance = Room.databaseBuilder(
@@ -33,4 +36,6 @@ public abstract class AppDatabase extends RoomDatabase {
     }
 
     public abstract StudentDao studentDao();
+
+    public abstract SubjectDao subjectDao();
 }
