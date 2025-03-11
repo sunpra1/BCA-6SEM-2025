@@ -1,9 +1,15 @@
 package com.sunpra.classroom;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -13,19 +19,22 @@ import com.sunpra.classroom.data.AppDatabase;
 import com.sunpra.classroom.databinding.ActivityAddStudentBinding;
 import com.sunpra.classroom.databinding.ActivityStudentListBinding;
 import com.sunpra.classroom.model.Student;
+import com.sunpra.classroom.model.StudentWithSubjects;
 
 import java.util.List;
 import java.util.concurrent.Executors;
 
 public class StudentListActivity extends AppCompatActivity {
 
-    ActivityStudentListBinding binding; //TODO
+    ActivityStudentListBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityStudentListBinding.inflate(getLayoutInflater()); //TODO
-        setContentView(binding.getRoot()); // TODO
+        binding = ActivityStudentListBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        setSupportActionBar(binding.myToolbar);
+
         EdgeToEdge.enable(this);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -35,14 +44,39 @@ public class StudentListActivity extends AppCompatActivity {
         initializeView();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.student_list_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.addStudentMenu) {
+            // Navigate to add student activity.
+            Intent intent = new Intent(
+                    StudentListActivity.this, AddStudentActivity.class
+            );
+            startActivity(intent);
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void initializeView() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(getString(R.string.all_students));
+        }
         updateStudents();
     }
 
-    private void updateStudents(){
+    private void updateStudents() {
         Executors.newSingleThreadExecutor().execute(() -> {
             // get list of students from database.
-            List<Student> students = AppDatabase.getInstance(this).studentDao().getAll();
+            List<StudentWithSubjects> students = AppDatabase.getInstance(this).studentDao().getAll();
             // Initialize recycler view adapter.
             StudentListAdapter studentListAdapter = new StudentListAdapter(students);
             // Pass adapter ro recycler view.

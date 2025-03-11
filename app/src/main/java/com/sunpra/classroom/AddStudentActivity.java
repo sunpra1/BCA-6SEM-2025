@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -15,6 +16,7 @@ import android.widget.RadioGroup;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.collection.ArraySet;
 import androidx.core.graphics.Insets;
@@ -27,6 +29,8 @@ import com.sunpra.classroom.model.Grade;
 import com.sunpra.classroom.model.OptionalSubject;
 import com.sunpra.classroom.model.Student;
 import com.sunpra.classroom.model.StudentDao;
+import com.sunpra.classroom.model.Subject;
+import com.sunpra.classroom.model.SubjectDao;
 
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -65,6 +69,7 @@ public class AddStudentActivity extends AppCompatActivity
         EdgeToEdge.enable(this);
         binding = ActivityAddStudentBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        setSupportActionBar(binding.myToolbar);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -73,7 +78,22 @@ public class AddStudentActivity extends AppCompatActivity
         initializeView();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void initializeView() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(getString(R.string.add_student));
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         binding.addBtn.setOnClickListener(AddStudentActivity.this);
         binding.genderGroup.setOnCheckedChangeListener(AddStudentActivity.this);
         binding.gradeSpinner.setOnItemSelectedListener(AddStudentActivity.this);
@@ -199,20 +219,24 @@ public class AddStudentActivity extends AppCompatActivity
         AppDatabase appDatabase = AppDatabase.getInstance(AddStudentActivity.this);
 
         StudentDao studentDao = appDatabase.studentDao();
+        SubjectDao subjectDao = appDatabase.subjectDao();
 
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                studentDao.insertStudent(student);
-                // TODO save optional subjects as well.
-                // TASK please try to add optional subjects of student here.
-
-                navigateToStudentListScreen();
+        Executors.newSingleThreadExecutor().execute(() -> {
+            long studentId = studentDao.insertStudent(student);
+            for (OptionalSubject subject : selectedOptionalSubjects) {
+                subjectDao.insert(
+                        new Subject(
+                                0,
+                                subject.name(),
+                                (int) studentId
+                        )
+                );
             }
+            navigateToStudentListScreen();
         });
     }
 
-    private void navigateToStudentListScreen(){
+    private void navigateToStudentListScreen() {
         Intent intent = new Intent(AddStudentActivity.this, StudentListActivity.class);
         startActivity(intent);
     }

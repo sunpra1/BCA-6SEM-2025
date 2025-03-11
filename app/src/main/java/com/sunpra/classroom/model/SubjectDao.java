@@ -6,5 +6,5 @@ import androidx.room.Insert;
 @Dao
 public interface SubjectDao {
     @Insert
-    void insertSubject(Subject subject);
+    void insert(Subject subject);
 }

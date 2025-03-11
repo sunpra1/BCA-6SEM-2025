@@ -1,7 +1,6 @@
 package com.sunpra.classroom;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -9,15 +8,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.sunpra.classroom.databinding.ItemStudentBinding;
 import com.sunpra.classroom.model.Student;
+import com.sunpra.classroom.model.StudentWithSubjects;
 
 import java.util.List;
 
 public class StudentListAdapter extends RecyclerView.Adapter<StudentListAdapter.ViewHolder> {
 
-    private List<Student> students;
+    private List<StudentWithSubjects> studentsWithSubjects;
 
-    StudentListAdapter(List<Student> students){
-        this.students = students;
+    StudentListAdapter(List<StudentWithSubjects> studentsWithSubjects){
+        this.studentsWithSubjects = studentsWithSubjects;
     }
 
     @NonNull
@@ -33,13 +33,13 @@ public class StudentListAdapter extends RecyclerView.Adapter<StudentListAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Student student = students.get(position);
-        holder.updateStudentDetails(student);
+        StudentWithSubjects studentWithSubject = studentsWithSubjects.get(position);
+        holder.updateStudentDetails(studentWithSubject);
     }
 
     @Override
     public int getItemCount() {
-        return students.size();
+        return studentsWithSubjects.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder{
@@ -52,11 +52,13 @@ public class StudentListAdapter extends RecyclerView.Adapter<StudentListAdapter.
             this.itemStudentBinding = itemView;
         }
 
-        void updateStudentDetails(Student student){
-            itemStudentBinding.studentName.setText(student.getName());
-            itemStudentBinding.studentGender.setText(student.getGender().toString());
-            itemStudentBinding.studentGrade.setText(student.getGrade().toString());
-            itemStudentBinding.studentEnrolled.setText(String.valueOf(student.isEnrolled()));
+        void updateStudentDetails(StudentWithSubjects studentWithSubjects){
+            itemStudentBinding.studentName.setText(studentWithSubjects.student.getName());
+            itemStudentBinding.studentGender.setText(studentWithSubjects.student.getGender().toString());
+            itemStudentBinding.studentGrade.setText(studentWithSubjects.student.getGrade().toString());
+            itemStudentBinding.studentEnrolled.setText(String.valueOf(studentWithSubjects.student.isEnrolled()));
+
+            //TODO Task: add optional subjects.
         }
     }
 }

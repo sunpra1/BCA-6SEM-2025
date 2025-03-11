@@ -2,9 +2,12 @@ package com.sunpra.classroom.data;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.sunpra.classroom.model.Student;
 import com.sunpra.classroom.model.StudentDao;
@@ -26,10 +29,11 @@ public abstract class AppDatabase extends RoomDatabase {
         synchronized (AppDatabase.class) {
             if (instance != null) return instance;
             instance = Room.databaseBuilder(
-                    context,
-                    AppDatabase.class,
-                    "app_database"
-            ).build();
+                            context,
+                            AppDatabase.class,
+                            "app_database"
+                    )
+                    .build();
 
             return instance;
         }
