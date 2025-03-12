@@ -92,4 +92,7 @@
     <string name="is_enrolled_label">Is Enrolled</string>
     <string name="all_students">All Students</string>
     <string name="add_student">Add Student</string>
+    <string name="optional_subjects">"Optional Subjects: "</string>
+    <string name="more_icon">More Options</string>
+    <string name="delete">Delete</string>
 </resources>

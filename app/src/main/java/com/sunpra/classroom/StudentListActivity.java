@@ -24,7 +24,7 @@ import com.sunpra.classroom.model.StudentWithSubjects;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-public class StudentListActivity extends AppCompatActivity {
+public class StudentListActivity extends AppCompatActivity implements StudentMenuClickListener {
 
     ActivityStudentListBinding binding;
 
@@ -78,12 +78,23 @@ public class StudentListActivity extends AppCompatActivity {
             // get list of students from database.
             List<StudentWithSubjects> students = AppDatabase.getInstance(this).studentDao().getAll();
             // Initialize recycler view adapter.
-            StudentListAdapter studentListAdapter = new StudentListAdapter(students);
+            StudentListAdapter studentListAdapter = new StudentListAdapter(
+                    students,
+                    StudentListActivity.this
+            );
             // Pass adapter ro recycler view.
             runOnUiThread(() -> {
                 binding.studentRV.setAdapter(studentListAdapter);
                 binding.studentRV.setLayoutManager(new LinearLayoutManager(this));
             });
+        });
+    }
+
+    @Override
+    public void onDeleteClicked(StudentWithSubjects studentWithSubjects) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            // TODO delete student
+            // Add method to delete in dao
         });
     }
 }
