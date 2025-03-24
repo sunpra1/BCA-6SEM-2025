@@ -29,6 +29,7 @@ import com.sunpra.classroom.model.Grade;
 import com.sunpra.classroom.model.OptionalSubject;
 import com.sunpra.classroom.model.Student;
 import com.sunpra.classroom.model.StudentDao;
+import com.sunpra.classroom.model.StudentWithSubjects;
 import com.sunpra.classroom.model.Subject;
 import com.sunpra.classroom.model.SubjectDao;
 
@@ -43,6 +44,8 @@ public class AddStudentActivity extends AppCompatActivity
         CompoundButton.OnCheckedChangeListener {
 
     private static final String TAG = "AddStudentActivity";
+
+    static final String EXTRA_STUDENT_WITH_SUBJECTS = "student_with_subjects";
 
     ActivityAddStudentBinding binding;
 
@@ -63,6 +66,8 @@ public class AddStudentActivity extends AppCompatActivity
     Set<OptionalSubject> selectedOptionalSubjects = new ArraySet<>();
     boolean isEnrolled;
 
+    StudentWithSubjects studentWithSubjects;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +80,10 @@ public class AddStudentActivity extends AppCompatActivity
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        Intent intent = getIntent();
+        if(intent != null && intent.hasExtra(EXTRA_STUDENT_WITH_SUBJECTS)){
+            studentWithSubjects = (StudentWithSubjects) intent.getSerializableExtra(EXTRA_STUDENT_WITH_SUBJECTS);
+        }
         initializeView();
     }
 
@@ -102,6 +111,65 @@ public class AddStudentActivity extends AppCompatActivity
         binding.optSubjectComputer.setOnCheckedChangeListener(AddStudentActivity.this);
         binding.optSubjectEconomics.setOnCheckedChangeListener(AddStudentActivity.this);
         binding.isEnrolled.setOnCheckedChangeListener(AddStudentActivity.this);
+
+        if(studentWithSubjects != null){
+            //Note: We are here for edit
+            binding.studentName.setText(studentWithSubjects.student.getName());
+
+            // TODO: binding.genderGroup
+
+            //region grade
+            int selectedIndex = -1;
+            for(int index = 0; index < grades.length; index++){
+                if(grades[index] == studentWithSubjects.student.getGrade()){
+                    selectedIndex = index;
+                    break;
+                }
+            }
+            if(selectedIndex > -1){
+                binding.gradeSpinner.setSelection(selectedIndex);
+            }
+            //endregion
+
+            //region Optional Subject
+            boolean isOptSubjectAccountSelected = false;
+            boolean isOptSubjectMathSelected = false;
+            boolean isOptSubjectComputerSelected = false;
+            boolean isOptSubjectEconomicsSelected = false;
+
+            for(Subject subject : studentWithSubjects.subjects){
+                if(
+                        subject.getSubjectName()
+                                .equals(OptionalSubject.ACCOUNTS.name())
+                ){
+                    isOptSubjectAccountSelected = true;
+                }else if(
+                        subject.getSubjectName()
+                                .equals(OptionalSubject.OPTIONAL_MATH.name())
+                ){
+                    isOptSubjectMathSelected = true;
+                }else if(
+                        subject.getSubjectName()
+                                .equals(OptionalSubject.COMPUTER.name())
+                ){
+                    isOptSubjectComputerSelected = true;
+                }else if(
+                        subject.getSubjectName()
+                                .equals(OptionalSubject.ECONOMICS.name())
+                ){
+                    isOptSubjectEconomicsSelected = true;
+                }
+            }
+
+            binding.optSubjectAccounts.setChecked(
+                    studentWithSubjects.subjects.contains()
+            );
+            binding.optSubjectMath.setChecked();
+            binding.optSubjectComputer.setChecked();
+            binding.optSubjectEconomics.setChecked();
+            //endregion
+        }
+
         initializeGradeAdapter();
     }
 

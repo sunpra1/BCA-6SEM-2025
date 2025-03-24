@@ -7,6 +7,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -19,6 +21,7 @@ import com.sunpra.classroom.data.AppDatabase;
 import com.sunpra.classroom.databinding.ActivityAddStudentBinding;
 import com.sunpra.classroom.databinding.ActivityStudentListBinding;
 import com.sunpra.classroom.model.Student;
+import com.sunpra.classroom.model.StudentDao;
 import com.sunpra.classroom.model.StudentWithSubjects;
 
 import java.util.List;
@@ -26,6 +29,12 @@ import java.util.concurrent.Executors;
 
 public class StudentListActivity extends AppCompatActivity implements StudentMenuClickListener {
 
+    ActivityResultLauncher<Intent> updateStudentResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            (result) -> {
+                //TODO: will receive result here.
+            }
+    );
     ActivityStudentListBinding binding;
 
     @Override
@@ -93,8 +102,17 @@ public class StudentListActivity extends AppCompatActivity implements StudentMen
     @Override
     public void onDeleteClicked(StudentWithSubjects studentWithSubjects) {
         Executors.newSingleThreadExecutor().execute(() -> {
-            // TODO delete student
-            // Add method to delete in dao
+            StudentDao studentDao = AppDatabase.getInstance(StudentListActivity.this).studentDao();
+            studentDao.deleteStudent(studentWithSubjects.student);
+            updateStudents();
         });
+    }
+
+    @Override
+    public void onEditClicked(StudentWithSubjects studentWithSubjects) {
+        //TODO handle edit student
+        Intent intent = new Intent(StudentListActivity.this, AddStudentActivity.class);
+        intent.putExtra(AddStudentActivity.EXTRA_STUDENT_WITH_SUBJECTS, studentWithSubjects);
+        updateStudentResultLauncher.launch(intent);
     }
 }

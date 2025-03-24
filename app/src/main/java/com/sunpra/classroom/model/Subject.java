@@ -2,14 +2,26 @@ package com.sunpra.classroom.model;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
-@Entity
-public class Subject {
+import java.io.Serializable;
+
+@Entity(
+        foreignKeys = {
+                @ForeignKey(
+                        entity = Student.class,
+                        childColumns = "user_id",
+                        parentColumns = "id",
+                        onDelete = ForeignKey.CASCADE
+                )
+        }
+)
+public class Subject implements Serializable {
     @ColumnInfo(name = "id")
     @PrimaryKey(autoGenerate = true)
     private int id;
-    @ColumnInfo(name =  "subject_name")
+    @ColumnInfo(name = "subject_name")
     private String subjectName;
     @ColumnInfo(name = "user_id")
     private int userId;

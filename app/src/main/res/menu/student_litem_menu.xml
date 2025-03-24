@@ -5,4 +5,9 @@
         android:id="@+id/deleteStudent"
         android:title="@string/delete"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/editStudent"
+        android:title="@string/edit"
+        app:showAsAction="ifRoom" />
 </menu>
