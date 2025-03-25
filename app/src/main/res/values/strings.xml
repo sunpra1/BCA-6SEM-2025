@@ -96,4 +96,5 @@
     <string name="more_icon">More Options</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
+    <string name="edit_student">Edit Student</string>
 </resources>

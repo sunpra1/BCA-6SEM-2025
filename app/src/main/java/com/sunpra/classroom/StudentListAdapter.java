@@ -81,6 +81,9 @@ public class StudentListAdapter extends RecyclerView.Adapter<StudentListAdapter.
                     if (item.getItemId() == R.id.deleteStudent) {
                         studentMenuClickListener.onDeleteClicked(studentWithSubjects);
                         return true;
+                    }else if(item.getItemId() == R.id.editStudent){
+                        studentMenuClickListener.onEditClicked(studentWithSubjects);
+                        return true;
                     }
                     return false;
                 });

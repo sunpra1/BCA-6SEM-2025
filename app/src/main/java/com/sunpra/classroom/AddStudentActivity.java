@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.collection.ArraySet;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -100,10 +101,28 @@ public class AddStudentActivity extends AppCompatActivity
     private void initializeView() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setTitle(getString(R.string.add_student));
+            if(studentWithSubjects != null){
+                actionBar.setTitle(getString(R.string.edit_student));
+            }else {
+                actionBar.setTitle(getString(R.string.add_student));
+            }
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         binding.addBtn.setOnClickListener(AddStudentActivity.this);
+
+        if(studentWithSubjects != null){
+            binding.addBtn.setText(R.string.edit);
+            binding.addBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    ContextCompat.getDrawable(
+                            AddStudentActivity.this,
+                            R.drawable.edit
+                    ),
+                    null,
+                    null,
+                    null
+            );
+        }
+
         binding.genderGroup.setOnCheckedChangeListener(AddStudentActivity.this);
         binding.gradeSpinner.setOnItemSelectedListener(AddStudentActivity.this);
         binding.optSubjectAccounts.setOnCheckedChangeListener(AddStudentActivity.this);
@@ -112,22 +131,33 @@ public class AddStudentActivity extends AppCompatActivity
         binding.optSubjectEconomics.setOnCheckedChangeListener(AddStudentActivity.this);
         binding.isEnrolled.setOnCheckedChangeListener(AddStudentActivity.this);
 
+        int selectedGradeIndex = -1;
+
+        //region edit student
         if(studentWithSubjects != null){
             //Note: We are here for edit
             binding.studentName.setText(studentWithSubjects.student.getName());
 
-            // TODO: binding.genderGroup
+            //region Gender
+            switch (studentWithSubjects.student.getGender()){
+                case MALE:
+                    binding.genderMale.setChecked(true);
+                    break;
+                case FEMALE:
+                    binding.genderFemale.setChecked(true);
+                    break;
+                case OTHERS:
+                    binding.genderOthers.setChecked(true);
+                    break;
+            }
+            //endregion
 
             //region grade
-            int selectedIndex = -1;
             for(int index = 0; index < grades.length; index++){
                 if(grades[index] == studentWithSubjects.student.getGrade()){
-                    selectedIndex = index;
+                    selectedGradeIndex = index;
                     break;
                 }
-            }
-            if(selectedIndex > -1){
-                binding.gradeSpinner.setSelection(selectedIndex);
             }
             //endregion
 
@@ -161,19 +191,21 @@ public class AddStudentActivity extends AppCompatActivity
                 }
             }
 
-            binding.optSubjectAccounts.setChecked(
-                    studentWithSubjects.subjects.contains()
-            );
-            binding.optSubjectMath.setChecked();
-            binding.optSubjectComputer.setChecked();
-            binding.optSubjectEconomics.setChecked();
+            binding.optSubjectAccounts.setChecked(isOptSubjectAccountSelected);
+            binding.optSubjectMath.setChecked(isOptSubjectMathSelected);
+            binding.optSubjectComputer.setChecked(isOptSubjectComputerSelected);
+            binding.optSubjectEconomics.setChecked(isOptSubjectEconomicsSelected);
+            //endregion
+
+            //region isEnrolled
+            binding.isEnrolled.setChecked(studentWithSubjects.student.isEnrolled());
             //endregion
         }
-
-        initializeGradeAdapter();
+        //endregion
+        initializeGradeAdapter(selectedGradeIndex);
     }
 
-    void initializeGradeAdapter() {
+    void initializeGradeAdapter(int selectedPosition) {
         ArrayAdapter<Grade> gradeAdapter = new ArrayAdapter<>(
                 AddStudentActivity.this,
                 android.R.layout.simple_spinner_dropdown_item,
@@ -192,6 +224,9 @@ public class AddStudentActivity extends AppCompatActivity
             }
         };
         binding.gradeSpinner.setAdapter(gradeAdapter);
+        if(selectedPosition > -1){
+            binding.gradeSpinner.setSelection(selectedPosition);
+        }
     }
 
     private void showMessage(String message) {
