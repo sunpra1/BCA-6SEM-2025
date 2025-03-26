@@ -34,6 +34,8 @@ import com.sunpra.classroom.model.StudentWithSubjects;
 import com.sunpra.classroom.model.Subject;
 import com.sunpra.classroom.model.SubjectDao;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -108,8 +110,8 @@ public class AddStudentActivity extends AppCompatActivity
             }
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        binding.addBtn.setOnClickListener(AddStudentActivity.this);
 
+        binding.addBtn.setOnClickListener(AddStudentActivity.this);
         if(studentWithSubjects != null){
             binding.addBtn.setText(R.string.edit);
             binding.addBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(
@@ -311,32 +313,64 @@ public class AddStudentActivity extends AppCompatActivity
         Grade grade = this.selectedGrade;
         boolean isEnrolled = this.isEnrolled;
 
+        int studentId = 0;
+        if(studentWithSubjects != null)
+            studentId = studentWithSubjects.student.getId();
+
         Student student = new Student(
-                0,
+                studentId,
                 name,
                 gender,
                 grade,
                 isEnrolled
         );
 
-        AppDatabase appDatabase = AppDatabase.getInstance(AddStudentActivity.this);
+        if(studentWithSubjects == null) { // New Student add
+            AppDatabase appDatabase = AppDatabase.getInstance(AddStudentActivity.this);
 
-        StudentDao studentDao = appDatabase.studentDao();
-        SubjectDao subjectDao = appDatabase.subjectDao();
+            StudentDao studentDao = appDatabase.studentDao();
+            SubjectDao subjectDao = appDatabase.subjectDao();
 
-        Executors.newSingleThreadExecutor().execute(() -> {
-            long studentId = studentDao.insertStudent(student);
-            for (OptionalSubject subject : selectedOptionalSubjects) {
-                subjectDao.insert(
+            Executors.newSingleThreadExecutor().execute(() -> {
+                long id = studentDao.insertStudent(student);
+                for (OptionalSubject subject : selectedOptionalSubjects) {
+                    subjectDao.insert(
+                            new Subject(
+                                    0,
+                                    subject.name(),
+                                    (int) id
+                            )
+                    );
+                }
+                navigateToStudentListScreen();
+            });
+        }else{ //Edit student
+            //Note: Edit could have been achieved here only. But, for the purpose
+            // of demonstrating passing result between activity StudentWithSubjects has
+            // passed as a result here.
+            Intent intent = new Intent();
+            StudentWithSubjects studentWithSubjects = new StudentWithSubjects();
+            studentWithSubjects.student = student;
+
+            ArrayList<Subject> subjects = new ArrayList<>();
+            for(OptionalSubject subject: selectedOptionalSubjects){
+                subjects.add(
                         new Subject(
                                 0,
                                 subject.name(),
-                                (int) studentId
+                                studentWithSubjects.student.getId()
                         )
                 );
             }
-            navigateToStudentListScreen();
-        });
+
+            studentWithSubjects.subjects = subjects;
+            intent.putExtra(
+                    EXTRA_STUDENT_WITH_SUBJECTS,
+                    studentWithSubjects
+            );
+            setResult(RESULT_OK, intent);
+            finish();
+        }
     }
 
     private void navigateToStudentListScreen() {

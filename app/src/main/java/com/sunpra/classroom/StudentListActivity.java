@@ -2,6 +2,7 @@ package com.sunpra.classroom;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -9,6 +10,7 @@ import android.view.MenuItem;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -23,7 +25,10 @@ import com.sunpra.classroom.databinding.ActivityStudentListBinding;
 import com.sunpra.classroom.model.Student;
 import com.sunpra.classroom.model.StudentDao;
 import com.sunpra.classroom.model.StudentWithSubjects;
+import com.sunpra.classroom.model.Subject;
+import com.sunpra.classroom.model.SubjectDao;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -32,7 +37,19 @@ public class StudentListActivity extends AppCompatActivity implements StudentMen
     ActivityResultLauncher<Intent> updateStudentResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             (result) -> {
-                //TODO: will receive result here.
+                if(result.getResultCode() == RESULT_OK){
+                    Intent intent = result.getData();
+                    if(
+                            intent != null &&
+                                    intent.hasExtra(
+                                            AddStudentActivity.EXTRA_STUDENT_WITH_SUBJECTS
+                                    )
+                    ) {
+                        StudentWithSubjects studentWithSubjects =
+                                (StudentWithSubjects) intent.getSerializableExtra(AddStudentActivity.EXTRA_STUDENT_WITH_SUBJECTS);
+                        updateIndividualStudent(studentWithSubjects);
+                    }
+                }
             }
     );
     ActivityStudentListBinding binding;
@@ -96,6 +113,22 @@ public class StudentListActivity extends AppCompatActivity implements StudentMen
                 binding.studentRV.setAdapter(studentListAdapter);
                 binding.studentRV.setLayoutManager(new LinearLayoutManager(this));
             });
+        });
+    }
+
+    private void updateIndividualStudent(StudentWithSubjects studentWithSubjects){
+        Executors.newSingleThreadScheduledExecutor().execute(() -> {
+            AppDatabase appDatabase = AppDatabase.getInstance(StudentListActivity.this);
+            SubjectDao subjectDao = appDatabase.subjectDao();
+            StudentDao studentDao = appDatabase.studentDao();
+
+            subjectDao.deleteSubjectsHavingIds(studentWithSubjects.student.getId());
+            studentDao.updateStudent(studentWithSubjects.student);
+
+            for (Subject subject: studentWithSubjects.subjects){
+                subjectDao.insert(subject);
+            }
+            updateStudents();
         });
     }
 
