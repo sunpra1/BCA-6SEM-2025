@@ -97,4 +97,6 @@
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
     <string name="edit_student">Edit Student</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_student_msg_format">Are you sure you want to delete student %s.</string>
 </resources>

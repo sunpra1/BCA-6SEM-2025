@@ -12,6 +12,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
@@ -37,9 +38,9 @@ public class StudentListActivity extends AppCompatActivity implements StudentMen
     ActivityResultLauncher<Intent> updateStudentResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             (result) -> {
-                if(result.getResultCode() == RESULT_OK){
+                if (result.getResultCode() == RESULT_OK) {
                     Intent intent = result.getData();
-                    if(
+                    if (
                             intent != null &&
                                     intent.hasExtra(
                                             AddStudentActivity.EXTRA_STUDENT_WITH_SUBJECTS
@@ -116,7 +117,7 @@ public class StudentListActivity extends AppCompatActivity implements StudentMen
         });
     }
 
-    private void updateIndividualStudent(StudentWithSubjects studentWithSubjects){
+    private void updateIndividualStudent(StudentWithSubjects studentWithSubjects) {
         Executors.newSingleThreadScheduledExecutor().execute(() -> {
             AppDatabase appDatabase = AppDatabase.getInstance(StudentListActivity.this);
             SubjectDao subjectDao = appDatabase.subjectDao();
@@ -125,7 +126,7 @@ public class StudentListActivity extends AppCompatActivity implements StudentMen
             subjectDao.deleteSubjectsHavingIds(studentWithSubjects.student.getId());
             studentDao.updateStudent(studentWithSubjects.student);
 
-            for (Subject subject: studentWithSubjects.subjects){
+            for (Subject subject : studentWithSubjects.subjects) {
                 subjectDao.insert(subject);
             }
             updateStudents();
@@ -134,11 +135,26 @@ public class StudentListActivity extends AppCompatActivity implements StudentMen
 
     @Override
     public void onDeleteClicked(StudentWithSubjects studentWithSubjects) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            StudentDao studentDao = AppDatabase.getInstance(StudentListActivity.this).studentDao();
-            studentDao.deleteStudent(studentWithSubjects.student);
-            updateStudents();
-        });
+        new AlertDialog.Builder(StudentListActivity.this)
+                .setTitle(R.string.delete)
+                .setMessage(
+                        getString(
+                                R.string.delete_student_msg_format,
+                                studentWithSubjects.student.getName()
+                        )
+                )
+                .setPositiveButton(R.string.delete, (dialog, which) -> {
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        StudentDao studentDao = AppDatabase.getInstance(StudentListActivity.this).studentDao();
+                        studentDao.deleteStudent(studentWithSubjects.student);
+                        updateStudents();
+                    });
+                    dialog.dismiss();
+                })
+                .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
     }
 
     @Override
