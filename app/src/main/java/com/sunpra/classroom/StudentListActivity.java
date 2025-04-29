@@ -151,17 +151,35 @@ public class StudentListActivity extends AppCompatActivity implements StudentMen
                     });
                     dialog.dismiss();
                 })
+                .setCancelable(false)
                 .setNegativeButton(R.string.cancel, (dialog, which) -> {
                     dialog.dismiss();
                 })
                 .show();
     }
 
+    //region Starting Activity for result.
     @Override
     public void onEditClicked(StudentWithSubjects studentWithSubjects) {
         //TODO handle edit student
         Intent intent = new Intent(StudentListActivity.this, AddStudentActivity.class);
         intent.putExtra(AddStudentActivity.EXTRA_STUDENT_WITH_SUBJECTS, studentWithSubjects);
-        updateStudentResultLauncher.launch(intent);
+        startActivityForResult(intent, 100);
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 100){
+            if (resultCode == RESULT_OK) {
+                if (data != null && data.hasExtra(AddStudentActivity.EXTRA_STUDENT_WITH_SUBJECTS)) {
+                    StudentWithSubjects studentWithSubjects =
+                            (StudentWithSubjects) data.getSerializableExtra(AddStudentActivity.EXTRA_STUDENT_WITH_SUBJECTS);
+                    updateIndividualStudent(studentWithSubjects);
+                }
+            }
+        }
+    }
+    //endregion
 }

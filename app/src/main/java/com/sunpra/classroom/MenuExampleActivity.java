@@ -1,6 +1,7 @@
 package com.sunpra.classroom;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,6 +16,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.sunpra.classroom.data.SQLAppDatabase;
+import com.sunpra.classroom.model.User;
+import com.sunpra.classroom.model.UserDao;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MenuExampleActivity extends AppCompatActivity {
 
@@ -42,6 +51,22 @@ public class MenuExampleActivity extends AppCompatActivity {
         //region Context Menu
         Button clickMeAnotherBtn = findViewById(R.id.clickMeBtnAnother);
         registerForContextMenu(clickMeAnotherBtn);
+        //endregion
+
+        //region Add User in SQLITE Database
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try(SQLAppDatabase database = new SQLAppDatabase(MenuExampleActivity.this)){
+                long id = database.addUser(
+                        new User(
+                                0,
+                                "My Name",
+                                100
+                        )
+                );
+                Log.d("DATABASE", "Added User ID: " + id);
+            }
+        });
+        //endregion
     }
 
     @Override
