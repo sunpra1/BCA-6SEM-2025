@@ -15,6 +15,15 @@
         android:theme="@style/Theme.Classroom"
         tools:targetApi="31">
         <activity
+            android:name=".VollyActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".LifecycleActivity"
             android:exported="true">
             <intent-filter>
